@@ -1,0 +1,48 @@
+# helm/hub-central/values-prod.yaml
+# → ambiente “production”
+# (riempire con i valori reali o gestiti via Secret/CI)
+
+replicaCount: 3
+
+image:
+  repository: gcr.io/tuo-progetto/hub-central
+  tag: "<PROD_TAG>"            # es. v1.0.0
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer           # IP pubblico in cloud
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: hub-central.example.com
+      paths: ["/"]
+  tls:
+    enabled: true
+    secretName: hub-central-tls
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1
+    memory: 1Gi
+
+config:
+  enable: false                # usiamo Secret, non montiamo .env
+  env: |
+
+env:
+  DB_USER: ""                  # letti da Secret montato
+  DB_PASSWORD: ""
+  DB_HOST: ""                  # es. hub-central-db.ip.cloud
+  DB_PORT: ""
+  DB_NAME: ""
+  AGENTS_PACKAGE: "hub_central.agents"
+  AGENTS_LIST: '["dummy_agent"]'
+  KAFKA_TOPIC: ""
+  DEBUG: "false"

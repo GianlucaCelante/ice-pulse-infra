@@ -1,0 +1,76 @@
+# helm/hub-central/templates/deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hub-central.fullname" . }}
+  labels:
+    {{- include "hub-central.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "hub-central.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "hub-central.name" . }}
+    spec:
+      serviceAccountName: {{ include "hub-central.fullname" . }}-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: hub-central
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["uvicorn"]
+          args:
+            - hub_central.main:app
+            - --app-dir
+            - src
+            - --host
+            - "0.0.0.0"
+            - --port
+            - "8000"
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+              name: http
+
+          env:
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "hub-central.fullname" . }}-secrets
+                  key: DB_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "hub-central.fullname" . }}-secrets
+                  key: DB_PASSWORD
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "hub-central.fullname" . }}-secrets
+                  key: KAFKA_BOOTSTRAP_SERVERS
+{{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ quote $value }}
+{{- end }}
+
+          volumeMounts:
+            {{- if .Values.config.enable }}
+            - name: config
+              mountPath: /app/.env
+              subPath: .env
+            {{- end }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+      volumes:
+        {{- if .Values.config.enable }}
+        - name: config
+          configMap:
+            name: {{ include "hub-central.fullname" . }}
+        {{- end }}

@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "hub-central.fullname" . }}-np
+  labels:
+    {{- include "hub-central.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "hub-central.name" . }}
+  policyTypes:
+    - Ingress
+    - Egress
+
+  # Solo il traffico in ingresso dai componenti "trusted"
+  ingress:
+    - from:
+        # 1) Ingress Controller (namespace kube-system, nginx)
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+        # 2) Il database PostgreSQL (stesso namespace)
+        - podSelector:
+            matchLabels:
+              app: postgresql
+
+  # Solo il traffico in uscita verso Kafka e DNS
+  egress:
+    - to:
+        # 1) Kafka Broker service
+        - podSelector:
+            matchLabels:
+              app: kafka
+        # 2) CoreDNS (namespace kube-system)
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+
+  # Implicit deny per qualsiasi altro traffico

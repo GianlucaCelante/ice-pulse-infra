@@ -1,0 +1,11 @@
+{{- if .Values.config.enable }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "hub-central.fullname" . }}
+  labels:
+    {{- include "hub-central.labels" . | nindent 4 }}
+data:
+  .env: |-
+{{ .Values.config.env | indent 4 }}
+{{- end }}

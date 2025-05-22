@@ -1,0 +1,24 @@
+{
+    "id": null,
+    "title": "Hub Central Inventory",
+    "uid": "hub-central-inv",
+    "schemaVersion": 36,
+    "version": 0,
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Kafka Events Produced",
+        "targets": [
+          {
+            "expr": "kafka_events_produced_total{topic=\"inventory.events\"}",
+            "legendFormat": "{{topic}}",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 6 }
+      }
+    ],
+    "time": { "from": "now-1h", "to": "now" }
+  }
+  

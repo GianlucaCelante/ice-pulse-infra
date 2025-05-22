@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sit-sa
+  namespace: sit
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ci-sa
+  namespace: sit

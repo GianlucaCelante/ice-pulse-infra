@@ -1,0 +1,51 @@
+{{/*-----------------------------------------*/}}
+{{/* ServiceAccount dedicato a Hub Central */}}
+{{/*-----------------------------------------*/}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "hub-central.fullname" . }}-sa
+  labels:
+    {{- include "hub-central.labels" . | nindent 4 }}
+
+---
+
+{{/*-----------------------------------------*/}}
+{{/* Role con permessi minimi necessari    */}}
+{{/*-----------------------------------------*/}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "hub-central.fullname" . }}-role
+  labels:
+    {{- include "hub-central.labels" . | nindent 4 }}
+rules:
+  # Lettura di Secret e ConfigMap (per credenziali e .env)
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps"]
+    verbs: ["get"]
+
+  # Lettura di Pod (per readiness/liveness probe)
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list", "watch"]
+
+---
+
+{{/*-----------------------------------------*/}}
+{{/* RoleBinding per associare SA e Role    */}}
+{{/*-----------------------------------------*/}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "hub-central.fullname" . }}-binding
+  labels:
+    {{- include "hub-central.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "hub-central.fullname" . }}-sa
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "hub-central.fullname" . }}-role
+  apiGroup: rbac.authorization.k8s.io
