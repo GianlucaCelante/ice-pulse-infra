@@ -7,7 +7,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://github.com/tuo-org/ice-pulse-infra.git
+        repoURL: https://github.com/GianlucaCelante/ice-pulse-infra.git
         revision: master
         directories:
           - path: devops/dev
@@ -19,7 +19,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/tuo-org/ice-pulse-infra.git
+        repoURL: https://github.com/GianlucaCelante/ice-pulse-infra.git
         targetRevision: master
         path: "devops/{{path.basename}}"
       destination:
