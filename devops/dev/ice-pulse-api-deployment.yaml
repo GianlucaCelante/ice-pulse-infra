@@ -1,0 +1,29 @@
+# crea o modifica il file devops/dev/ice-pulse-api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ice-pulse-api
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ice-pulse-api
+  template:
+    metadata:
+      labels:
+        app: ice-pulse-api
+        test-sync: "true"      # label di verifica
+    spec:
+      containers:
+      - name: ice-pulse-api
+        image: nginx:stable-alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
