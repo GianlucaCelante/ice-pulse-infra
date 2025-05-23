@@ -1,0 +1,10 @@
+controller:
+  installPlugins:
+    - kubernetes
+    - git
+    - workflow-aggregator
+    - docker-workflow
+  serviceType: ClusterIP
+  servicePort: 8080
+persistence:
+  enabled: false
