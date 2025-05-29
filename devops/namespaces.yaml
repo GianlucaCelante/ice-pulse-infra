@@ -11,7 +11,7 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: sit
+  name: staging
   labels:
     environment: staging
     team: iot-haccp

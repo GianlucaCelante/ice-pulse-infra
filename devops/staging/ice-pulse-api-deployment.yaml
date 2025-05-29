@@ -1,0 +1,48 @@
+# devops/staging/ice-pulse-api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ice-pulse-api
+  namespace: staging
+  labels:
+    app: ice-pulse-api
+    environment: staging
+spec:
+  replicas: 2  # Più replicas per staging
+  selector:
+    matchLabels:
+      app: ice-pulse-api
+  template:
+    metadata:
+      labels:
+        app: ice-pulse-api
+        environment: staging
+        test-sync: "true"  # label di verifica
+    spec:
+      containers:
+        - name: ice-pulse-api
+          image: nginx:stable-alpine  # Sarà aggiornata da Jenkins
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "150m"     # Risorse leggermente maggiori per staging
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          env:
+            - name: ENVIRONMENT
+              value: "staging"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
