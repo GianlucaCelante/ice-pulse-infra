@@ -8,7 +8,7 @@ metadata:
     app: ice-pulse-api
     environment: production
 spec:
-  replicas: 3  # Più replicas per alta disponibilità in prod
+  replicas: 3 # Più replicas per alta disponibilità in prod
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -22,19 +22,19 @@ spec:
       labels:
         app: ice-pulse-api
         environment: production
-        test-sync: "true"  # label di verifica
+        test-sync: "true" # label di verifica
     spec:
       containers:
         - name: ice-pulse-api
-          image: nginx:stable-alpine  # Sarà aggiornata da Jenkins
+          image: docker.io/aipioppi/ice-pulse-api:0.0.4.PROD # Sarà aggiornata da Jenkins
           ports:
             - containerPort: 80
           resources:
             requests:
-              cpu: "200m"     # Risorse maggiori per produzione
+              cpu: "200m" # Risorse maggiori per produzione
               memory: "512Mi"
             limits:
-              cpu: "1000m"    # Limite più alto per prod
+              cpu: "1000m" # Limite più alto per prod
               memory: "1Gi"
           env:
             - name: ENVIRONMENT
