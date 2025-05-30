@@ -1,21 +1,19 @@
 # devops/dev/docker-compose-dev.yml FIXED - senza notifiche Slack
-services:  # Rimossa versione per evitare warning
-
+services: # Rimossa versione per evitare warning
   ice-pulse-api:
-    image: docker.io/aipioppi/ice-pulse-api:dev-latest
+    image: docker.io/aipioppi/ice-pulse-api:0.0.9
     container_name: ice-pulse-api-dev
     ports:
       - "8080:80"
     environment:
       - ENVIRONMENT=development
       - NODE_ENV=development
+      - DEPLOY_TIMESTAMP=$(date +%s)
     restart: unless-stopped
-    
     # Label per Watchtower
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "com.centurylinklabs.watchtower.scope=dev"
-    
     # Resource limits
     deploy:
       resources:
@@ -25,7 +23,6 @@ services:  # Rimossa versione per evitare warning
         reservations:
           cpus: '0.10'
           memory: 128M
-    
     # Health check
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
@@ -33,14 +30,12 @@ services:  # Rimossa versione per evitare warning
       timeout: 10s
       retries: 3
       start_period: 30s
-    
     # Logging
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
-
   # Watchtower per auto-update DEV (configurazione semplificata)
   watchtower-dev:
     image: containrrr/watchtower
@@ -48,11 +43,11 @@ services:  # Rimossa versione per evitare warning
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - WATCHTOWER_CLEANUP=true           # Rimuovi immagini vecchie
-      - WATCHTOWER_POLL_INTERVAL=60      # Check ogni minuto
-      - WATCHTOWER_LABEL_ENABLE=true      # Solo container con label
-      - WATCHTOWER_SCOPE=dev              # Solo scope dev
-      - WATCHTOWER_DEBUG=true             # Debug per dev
+      - WATCHTOWER_CLEANUP=true # Rimuovi immagini vecchie
+      - WATCHTOWER_POLL_INTERVAL=60 # Check ogni minuto
+      - WATCHTOWER_LABEL_ENABLE=true # Solo container con label
+      - WATCHTOWER_SCOPE=dev # Solo scope dev
+      - WATCHTOWER_DEBUG=true # Debug per dev
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.scope=dev"
