@@ -10,6 +10,7 @@ services: # Rimossa versione per evitare warning
       - NODE_ENV=development
       - DEPLOY_TIMESTAMP=$(date +%s)
       - DEPLOY_TIMESTAMP=$(date +%s)
+      - DEPLOY_TIMESTAMP=$(date +%s)
     restart: unless-stopped
     # Label per Watchtower
     labels:
