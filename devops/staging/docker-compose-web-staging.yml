@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   ice-pulse-web-staging:
-    image: docker.io/aipioppi/ice-pulse-web:staging-latest.RELEASE
+    image: docker.io/aipioppi/ice-pulse-web:0.0.5.RELEASE
     container_name: ice-pulse-web-staging
     restart: always
     ports:
@@ -10,6 +10,7 @@ services:
       - NODE_ENV=staging
       - REACT_APP_API_URL=http://localhost:8081
       - DEPLOY_TIMESTAMP=1748647713
+      - DEPLOY_TIMESTAMP=1748648025
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
       interval: 10s
