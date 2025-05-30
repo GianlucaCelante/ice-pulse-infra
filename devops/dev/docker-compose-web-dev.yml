@@ -1,8 +1,7 @@
 version: '3.8'
-
 services:
   ice-pulse-web-dev:
-    image: ${DOCKER_USERNAME}/ice-pulse-web:dev-latest
+    image: docker.io/aipioppi/ice-pulse-web:0.0.5
     container_name: ice-pulse-web-dev
     restart: always
     ports:
@@ -10,6 +9,7 @@ services:
     environment:
       - NODE_ENV=development
       - REACT_APP_API_URL=http://localhost:8080
+      - DEPLOY_TIMESTAMP=1748647344
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
@@ -23,7 +23,6 @@ services:
         max-file: "3"
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
-
   watchtower-web-dev:
     image: containrrr/watchtower
     container_name: watchtower-web-dev
