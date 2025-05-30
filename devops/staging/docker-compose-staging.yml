@@ -1,48 +1,43 @@
 # devops/staging/docker-compose-staging.yml con Watchtower
 services:
-
   ice-pulse-api:
-    image: docker.io/aipioppi/ice-pulse-api:staging-latest  # Usa staging-latest
+    image: docker.io/aipioppi/ice-pulse-api:staging-latest # Usa staging-latest
     container_name: ice-pulse-api-staging
     ports:
-      - "8081:80"  # Porta diversa da dev
+      - "8081:80" # Porta diversa da dev
     environment:
       - ENVIRONMENT=staging
       - NODE_ENV=staging
+      - DEPLOY_TIMESTAMP=1748614834
     restart: unless-stopped
-    
     # Label per Watchtower staging
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "com.centurylinklabs.watchtower.scope=staging"
       - "environment=staging"
       - "app=ice-pulse-api"
-    
     # Resource limits maggiori per staging
     deploy:
       resources:
         limits:
-          cpus: '0.50'      # Più CPU di dev
-          memory: 512M      # Più memoria di dev
+          cpus: '0.50' # Più CPU di dev
+          memory: 512M # Più memoria di dev
         reservations:
           cpus: '0.15'
           memory: 256M
-    
     # Health check più robusto per staging
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
-      interval: 10s       # Check più frequenti
+      interval: 10s # Check più frequenti
       timeout: 5s
       retries: 3
       start_period: 30s
-    
     # Logging con retention maggiore
     logging:
       driver: "json-file"
       options:
-        max-size: "50m"   # Log files più grandi
-        max-file: "5"     # Più file di backup
-
+        max-size: "50m" # Log files più grandi
+        max-file: "5" # Più file di backup
   # Watchtower per auto-update STAGING
   watchtower-staging:
     image: containrrr/watchtower
@@ -50,39 +45,36 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - WATCHTOWER_CLEANUP=true           # Rimuovi immagini vecchie
-      - WATCHTOWER_POLL_INTERVAL=300      # Check ogni 5 minuti (meno frequente di dev)
-      - WATCHTOWER_LABEL_ENABLE=true      # Solo container con label
-      - WATCHTOWER_SCOPE=staging          # Solo scope staging
-      - WATCHTOWER_DEBUG=false            # Meno verbose per staging
-      - WATCHTOWER_INCLUDE_STOPPED=false  # Solo container running
-      - WATCHTOWER_REVIVE_STOPPED=false   # Non riavviare container fermi
+      - WATCHTOWER_CLEANUP=true # Rimuovi immagini vecchie
+      - WATCHTOWER_POLL_INTERVAL=300 # Check ogni 5 minuti (meno frequente di dev)
+      - WATCHTOWER_LABEL_ENABLE=true # Solo container con label
+      - WATCHTOWER_SCOPE=staging # Solo scope staging
+      - WATCHTOWER_DEBUG=false # Meno verbose per staging
+      - WATCHTOWER_INCLUDE_STOPPED=false # Solo container running
+      - WATCHTOWER_REVIVE_STOPPED=false # Non riavviare container fermi
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.scope=staging"
       - "environment=staging"
       - "service=watchtower"
-
   # Optional: Nginx reverse proxy per staging
   nginx-staging:
     image: nginx:alpine
     container_name: nginx-staging
     ports:
-      - "80:80"    # Porta standard per staging (se serve)
+      - "80:80" # Porta standard per staging (se serve)
     volumes:
       - ./nginx-staging.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - ice-pulse-api
     restart: unless-stopped
-    
     # Health check per nginx
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-    
     labels:
       - "environment=staging"
       - "service=nginx"
-      - "com.centurylinklabs.watchtower.enable=false"  # Non aggiornare nginx
+      - "com.centurylinklabs.watchtower.enable=false" # Non aggiornare nginx
