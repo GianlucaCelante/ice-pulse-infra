@@ -1,9 +1,8 @@
-# devops/dev/docker-compose-dev.yml con auto-deploy locale
-version: '3.8'
+# devops/dev/docker-compose-dev.yml FIXED - senza notifiche Slack
+services:  # Rimossa versione per evitare warning
 
-services:
   ice-pulse-api:
-    image: docker.io/aipioppi/ice-pulse-api:dev-latest  # Usa sempre dev-latest
+    image: docker.io/aipioppi/ice-pulse-api:dev-latest
     container_name: ice-pulse-api-dev
     ports:
       - "8080:80"
@@ -42,7 +41,7 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  # Watchtower per auto-update DEV
+  # Watchtower per auto-update DEV (configurazione semplificata)
   watchtower-dev:
     image: containrrr/watchtower
     container_name: watchtower-dev
@@ -50,10 +49,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - WATCHTOWER_CLEANUP=true           # Rimuovi immagini vecchie
-      - WATCHTOWER_POLL_INTERVAL=180      # Check ogni 3 minuti (per dev)
+      - WATCHTOWER_POLL_INTERVAL=60      # Check ogni minuto
       - WATCHTOWER_LABEL_ENABLE=true      # Solo container con label
       - WATCHTOWER_SCOPE=dev              # Solo scope dev
-      - WATCHTOWER_NOTIFICATIONS=slack    # Opzionale: notifiche
       - WATCHTOWER_DEBUG=true             # Debug per dev
     restart: unless-stopped
     labels:
