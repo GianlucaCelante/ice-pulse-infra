@@ -1,27 +1,25 @@
 # devops/dev/docker-compose.dev.yml
 version: '3.8'
-
 services:
   ice-pulse-api:
-    image: docker.io/aipioppi/ice-pulse-api:0.0.4
+    image: docker.io/aipioppi/ice-pulse-api:0.0.6-SNAPSHOT
     container_name: ice-pulse-api-dev
     ports:
-      - "8080:80"  # Porta esterna 8080 per dev
+      - "8080:80" # Porta esterna 8080 per dev
     environment:
       - ENVIRONMENT=development
       - NODE_ENV=development
+      - DEPLOY_TIMESTAMP=$(date +%s)
     restart: unless-stopped
-    
     # Equivalente ai resource limits K8s
     deploy:
       resources:
         limits:
-          cpus: '0.25'      # 250m CPU
-          memory: 256M      # 256Mi memory
+          cpus: '0.25' # 250m CPU
+          memory: 256M # 256Mi memory
         reservations:
-          cpus: '0.10'      # 100m CPU  
-          memory: 128M      # 128Mi memory
-    
+          cpus: '0.10' # 100m CPU  
+          memory: 128M # 128Mi memory
     # Health check basico
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
@@ -29,14 +27,12 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-    
     # Logging
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
-
   # Optional: Nginx reverse proxy per dev
   nginx-dev:
     image: nginx:alpine
