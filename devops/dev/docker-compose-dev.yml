@@ -1,47 +1,60 @@
-# devops/dev/docker-compose.dev.yml
+# devops/dev/docker-compose-dev.yml con auto-deploy locale
 version: '3.8'
+
 services:
   ice-pulse-api:
-    image: docker.io/aipioppi/ice-pulse-api:0.0.6-SNAPSHOT
+    image: docker.io/aipioppi/ice-pulse-api:dev-latest  # Usa sempre dev-latest
     container_name: ice-pulse-api-dev
     ports:
-      - "8080:80" # Porta esterna 8080 per dev
+      - "8080:80"
     environment:
       - ENVIRONMENT=development
       - NODE_ENV=development
-      - DEPLOY_TIMESTAMP=$(date +%s)
-      - DEPLOY_TIMESTAMP=$(date +%s)
     restart: unless-stopped
-    # Equivalente ai resource limits K8s
+    
+    # Label per Watchtower
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=dev"
+    
+    # Resource limits
     deploy:
       resources:
         limits:
-          cpus: '0.25' # 250m CPU
-          memory: 256M # 256Mi memory
+          cpus: '0.25'
+          memory: 256M
         reservations:
-          cpus: '0.10' # 100m CPU  
-          memory: 128M # 128Mi memory
-    # Health check basico
+          cpus: '0.10'
+          memory: 128M
+    
+    # Health check
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    
     # Logging
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
-  # Optional: Nginx reverse proxy per dev
-  nginx-dev:
-    image: nginx:alpine
-    container_name: nginx-dev
-    ports:
-      - "80:80"
+
+  # Watchtower per auto-update DEV
+  watchtower-dev:
+    image: containrrr/watchtower
+    container_name: watchtower-dev
     volumes:
-      - ./nginx-dev.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - ice-pulse-api
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true           # Rimuovi immagini vecchie
+      - WATCHTOWER_POLL_INTERVAL=180      # Check ogni 3 minuti (per dev)
+      - WATCHTOWER_LABEL_ENABLE=true      # Solo container con label
+      - WATCHTOWER_SCOPE=dev              # Solo scope dev
+      - WATCHTOWER_NOTIFICATIONS=slack    # Opzionale: notifiche
+      - WATCHTOWER_DEBUG=true             # Debug per dev
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.scope=dev"
