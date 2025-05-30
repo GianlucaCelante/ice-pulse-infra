@@ -11,6 +11,7 @@ services: # Rimossa versione per evitare warning
       - DEPLOY_TIMESTAMP=$(date +%s)
       - DEPLOY_TIMESTAMP=$(date +%s)
       - DEPLOY_TIMESTAMP=$(date +%s)
+      - DEPLOY_TIMESTAMP=$(date +%s)
     restart: unless-stopped
     # Label per Watchtower
     labels:
