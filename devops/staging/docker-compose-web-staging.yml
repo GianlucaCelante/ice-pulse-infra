@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  ice-pulse-web-staging:
+    image: ${DOCKER_USERNAME}/ice-pulse-web:staging-latest.RELEASE
+    container_name: ice-pulse-web-staging
+    restart: always
+    ports:
+      - "8091:80"
+    environment:
+      - NODE_ENV=staging
+      - REACT_APP_API_URL=http://localhost:8081
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower-web-staging:
+    image: containrrr/watchtower
+    container_name: watchtower-web-staging
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300 --cleanup ice-pulse-web-staging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

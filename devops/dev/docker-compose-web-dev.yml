@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  ice-pulse-web-dev:
+    image: ${DOCKER_USERNAME}/ice-pulse-web:dev-latest
+    container_name: ice-pulse-web-dev
+    restart: always
+    ports:
+      - "8090:80"
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:8080
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower-web-dev:
+    image: containrrr/watchtower
+    container_name: watchtower-web-dev
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 180 --cleanup ice-pulse-web-dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

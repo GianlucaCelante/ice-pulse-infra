@@ -1,0 +1,217 @@
+# devops/prod/docker-compose-prod.yml
+# Production configuration with High Availability
+services:
+
+  # Ice Pulse API - Primary instance
+  ice-pulse-api-1:
+    image: docker.io/aipioppi/ice-pulse-api:prod-latest
+    container_name: ice-pulse-api-prod-1
+    environment:
+      - ENVIRONMENT=production
+      - NODE_ENV=production
+      - INSTANCE_ID=prod-1
+    restart: unless-stopped
+    
+    # Labels per Watchtower
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=production"
+    
+    # Resource limits production
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'       # Full CPU core
+          memory: 1G        # 1GB RAM
+        reservations:
+          cpus: '0.2'       # Minimum guaranteed
+          memory: 512M
+    
+    # Health check robusto
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    
+    # Logging production
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    
+    # Security context
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=100m
+
+  # Ice Pulse API - Secondary instance (per HA)
+  ice-pulse-api-2:
+    image: docker.io/aipioppi/ice-pulse-api:prod-latest
+    container_name: ice-pulse-api-prod-2
+    environment:
+      - ENVIRONMENT=production
+      - NODE_ENV=production
+      - INSTANCE_ID=prod-2
+    restart: unless-stopped
+    
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=production"
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 512M
+    
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=100m
+
+  # Ice Pulse API - Tertiary instance (per HA)
+  ice-pulse-api-3:
+    image: docker.io/aipioppi/ice-pulse-api:prod-latest
+    container_name: ice-pulse-api-prod-3
+    environment:
+      - ENVIRONMENT=production
+      - NODE_ENV=production
+      - INSTANCE_ID=prod-3
+    restart: unless-stopped
+    
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=production"
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 512M
+    
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=100m
+
+  # Nginx Load Balancer
+  nginx-prod:
+    image: nginx:alpine
+    container_name: nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"  # HTTPS
+    volumes:
+      - ./nginx-prod.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro  # SSL certificates
+    depends_on:
+      - ice-pulse-api-1
+      - ice-pulse-api-2
+      - ice-pulse-api-3
+    restart: unless-stopped
+    
+    # Health check per nginx
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    labels:
+      - "environment=production"
+      - "service=nginx-lb"
+      - "com.centurylinklabs.watchtower.enable=false"  # Non aggiornare nginx
+
+  # Watchtower per Production
+  watchtower-prod:
+    image: containrrr/watchtower
+    container_name: watchtower-prod
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 600 --scope production --label-enable --cleanup --debug=false
+    # 600 secondi = 10 minuti per production (più conservativo)
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.scope=production"
+    
+    # Security per watchtower
+    security_opt:
+      - no-new-privileges:true
+
+  # Monitoring con Prometheus (opzionale)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus-prod
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    labels:
+      - "environment=production"
+      - "service=monitoring"
+
+  # Log aggregation con Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-prod
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=your_secure_password_here
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    labels:
+      - "environment=production"
+      - "service=monitoring"
+
+volumes:
+  prometheus_data:
+  grafana_data:
