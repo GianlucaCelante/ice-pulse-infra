@@ -2,13 +2,14 @@
 version: '3.8'
 services:
   ice-pulse-api:
-    image: docker.io/aipioppi/ice-pulse-api:0.0.6-SNAPSHOT
+    image: docker.io/aipioppi/ice-pulse-api:0.0.7-SNAPSHOT
     container_name: ice-pulse-api-dev
     ports:
       - "8080:80" # Porta esterna 8080 per dev
     environment:
       - ENVIRONMENT=development
       - NODE_ENV=development
+      - DEPLOY_TIMESTAMP=$(date +%s)
       - DEPLOY_TIMESTAMP=$(date +%s)
       - DEPLOY_TIMESTAMP=$(date +%s)
     restart: unless-stopped
