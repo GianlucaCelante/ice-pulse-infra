@@ -11,6 +11,7 @@ services:
       - REACT_APP_API_URL=http://localhost:8080
       - DEPLOY_TIMESTAMP=1748647344
       - DEPLOY_TIMESTAMP=1748647686
+      - DEPLOY_TIMESTAMP=1748648007
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
