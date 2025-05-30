@@ -46,7 +46,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - WATCHTOWER_CLEANUP=true # Rimuovi immagini vecchie
-      - WATCHTOWER_POLL_INTERVAL=300 # Check ogni 5 minuti (meno frequente di dev)
+      - WATCHTOWER_POLL_INTERVAL=15 # Check ogni 5 minuti (meno frequente di dev)
       - WATCHTOWER_LABEL_ENABLE=true # Solo container con label
       - WATCHTOWER_SCOPE=staging # Solo scope staging
       - WATCHTOWER_DEBUG=false # Meno verbose per staging
