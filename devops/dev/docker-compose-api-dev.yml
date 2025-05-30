@@ -1,13 +1,14 @@
 # devops/dev/docker-compose-dev.yml FIXED - senza notifiche Slack
 services: # Rimossa versione per evitare warning
   ice-pulse-api:
-    image: docker.io/aipioppi/ice-pulse-api:0.0.11
+    image: docker.io/aipioppi/ice-pulse-api:0.0.12
     container_name: ice-pulse-api-dev
     ports:
       - "8080:80"
     environment:
       - ENVIRONMENT=development
       - NODE_ENV=development
+      - DEPLOY_TIMESTAMP=$(date +%s)
       - DEPLOY_TIMESTAMP=$(date +%s)
       - DEPLOY_TIMESTAMP=$(date +%s)
       - DEPLOY_TIMESTAMP=$(date +%s)
