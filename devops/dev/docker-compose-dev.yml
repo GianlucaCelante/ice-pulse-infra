@@ -10,6 +10,7 @@ services:
       - ENVIRONMENT=development
       - NODE_ENV=development
       - DEPLOY_TIMESTAMP=$(date +%s)
+      - DEPLOY_TIMESTAMP=$(date +%s)
     restart: unless-stopped
     # Equivalente ai resource limits K8s
     deploy:
