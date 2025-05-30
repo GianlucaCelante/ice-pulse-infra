@@ -10,6 +10,7 @@ services:
       - NODE_ENV=staging
       - DEPLOY_TIMESTAMP=1748614834
       - DEPLOY_TIMESTAMP=1748615127
+      - DEPLOY_TIMESTAMP=1748617769
     restart: unless-stopped
     # Label per Watchtower staging
     labels:
