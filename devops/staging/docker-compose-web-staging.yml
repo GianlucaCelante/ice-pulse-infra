@@ -1,8 +1,7 @@
 version: '3.8'
-
 services:
   ice-pulse-web-staging:
-    image: ${DOCKER_USERNAME}/ice-pulse-web:staging-latest.RELEASE
+    image: docker.io/aipioppi/ice-pulse-web:staging-latest.RELEASE
     container_name: ice-pulse-web-staging
     restart: always
     ports:
@@ -10,6 +9,7 @@ services:
     environment:
       - NODE_ENV=staging
       - REACT_APP_API_URL=http://localhost:8081
+      - DEPLOY_TIMESTAMP=1748647713
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
       interval: 10s
@@ -31,7 +31,6 @@ services:
           memory: 128M
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
-
   watchtower-web-staging:
     image: containrrr/watchtower
     container_name: watchtower-web-staging
