@@ -1,4 +1,4 @@
-# devops/dev/docker-compose-dev.yml FIXED - senza notifiche Slack
+# devops/dev/docker-compose-dev.yml
 services: # Rimossa versione per evitare warning
   ice-pulse-api:
     image: docker.io/aipioppi/ice-pulse-api:0.0.12
