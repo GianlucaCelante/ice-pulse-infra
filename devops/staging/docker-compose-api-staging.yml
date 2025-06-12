@@ -12,6 +12,7 @@ services:
       - DEPLOY_TIMESTAMP=1748615127
       - DEPLOY_TIMESTAMP=1748617769
       - DEPLOY_TIMESTAMP=1748619198
+      - DEPLOY_TIMESTAMP=1749737236
     restart: unless-stopped
     # Label per Watchtower staging
     labels:
