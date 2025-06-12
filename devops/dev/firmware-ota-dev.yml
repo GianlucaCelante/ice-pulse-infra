@@ -10,6 +10,8 @@ services:
       - FLASK_ENV=development
       - DEPLOY_TIMESTAMP=1749717778
       - FIRMWARE_VERSION=0.0.2
+      - DEPLOY_TIMESTAMP=1749718211
+      - FIRMWARE_VERSION=0.0.2
     restart: always
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
