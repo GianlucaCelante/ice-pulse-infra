@@ -1,13 +1,15 @@
 version: '3.8'
 services:
   ice-pulse-ota-dev:
-    image: aipioppi/ice-pulse-firmware-ota:dev-latest
+    image: aipioppi/ice-pulse-firmware-ota:0.0.2
     container_name: ice-pulse-ota-dev
     ports:
       - "8092:5000"
     environment:
       - ENVIRONMENT=development
       - FLASK_ENV=development
+      - DEPLOY_TIMESTAMP=1749717778
+      - FIRMWARE_VERSION=0.0.2
     restart: always
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
@@ -21,7 +23,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-        
   watchtower-ota-dev:
     image: containrrr/watchtower
     container_name: watchtower-ota-dev
