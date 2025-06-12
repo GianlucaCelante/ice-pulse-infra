@@ -1,41 +1,16 @@
 version: '3.8'
 services:
   ice-pulse-ota-dev:
-    image: aipioppi/ice-pulse-firmware-ota:0.0.3
+    image: aipioppi/ice-pulse-firmware-ota:0.0.5
     container_name: ice-pulse-ota-dev
     ports:
       - "8092:5000"
     environment:
       - ENVIRONMENT=development
-      - FLASK_ENV=development
-      - DEPLOY_TIMESTAMP=1749717778
-      - FIRMWARE_VERSION=0.0.2
-      - DEPLOY_TIMESTAMP=1749718211
-      - FIRMWARE_VERSION=0.0.2
-      - DEPLOY_TIMESTAMP=1749718699
-      - FIRMWARE_VERSION=0.0.3
+      - FIRMWARE_VERSION=0.0.5
     restart: always
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-  watchtower-ota-dev:
-    image: containrrr/watchtower
-    container_name: watchtower-ota-dev
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 180 --cleanup ice-pulse-ota-dev
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
