@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   ice-pulse-ota-dev:
-    image: aipioppi/ice-pulse-firmware-ota:0.0.2
+    image: aipioppi/ice-pulse-firmware-ota:0.0.3
     container_name: ice-pulse-ota-dev
     ports:
       - "8092:5000"
@@ -12,6 +12,8 @@ services:
       - FIRMWARE_VERSION=0.0.2
       - DEPLOY_TIMESTAMP=1749718211
       - FIRMWARE_VERSION=0.0.2
+      - DEPLOY_TIMESTAMP=1749718699
+      - FIRMWARE_VERSION=0.0.3
     restart: always
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
