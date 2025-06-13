@@ -1,7 +1,7 @@
 # devops/dev/docker-compose-dev.yml
 services: # Rimossa versione per evitare warning
   ice-pulse-api:
-    image: docker.io/aipioppi/ice-pulse-api:0.0.12
+    image: docker.io/aipioppi/ice-pulse-api:0.0.13
     container_name: ice-pulse-api-dev
     ports:
       - "8080:80"
